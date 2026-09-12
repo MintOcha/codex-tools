@@ -1,0 +1,42 @@
+{
+  "name": "codex-search-mcp",
+  "version": "1.0.0",
+  "description": "Model Context Protocol (MCP) server for live web search, page extraction, and alpha tools via reversed Codex backend",
+  "bin": {
+    "codex-search-mcp": "./dist/src/index.js"
+  },
+  "main": "./dist/src/index.js",
+  "type": "module",
+  "files": [
+    "dist/src",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/src/index.js",
+    "test": "npm run build && node --test dist/tests/*.test.js",
+    "prepublishOnly": "npm run test"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "codex",
+    "search",
+    "web-search",
+    "browser",
+    "chatgpt",
+    "claude",
+    "cursor"
+  ],
+  "author": "MintOcha",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.6.1",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.9",
+    "typescript": "^5.8.2"
+  }
+}
