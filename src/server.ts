@@ -6,7 +6,7 @@ import { CodexClient } from "./codex-client.js";
 export function createMcpServer(): McpServer {
   const server = new McpServer({
     name: "codex-tools",
-    version: "1.0.0",
+    version: "1.1.0",
   });
 
   const client = new CodexClient();
