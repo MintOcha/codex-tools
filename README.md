@@ -75,14 +75,58 @@ npx -y @mintocha/codex-tools
 
 `@mintocha/codex-tools` can be run via `npx` or installed globally as a command-line binary.
 
-### Available Commands
+### Command Reference
 
-| Command | Description |
-|---|---|
-| `npx @mintocha/codex-tools` | Starts the MCP server on `stdio` (default mode for MCP clients) |
-| `npx @mintocha/codex-tools login` | Runs interactive OAuth device-code login and caches tokens to `~/.codex/auth.json` |
-| `npx @mintocha/codex-tools --help` | Prints usage summary, auth options, and supported tool names |
+| Command | Description | Example |
+|---|---|---|
+| `search <query>` | Live web search with formatted citations | `npx @mintocha/codex-tools search "TypeScript 5.8" --max 5` |
+| `fetch <url>` | Extracts clean markdown/text from a URL | `npx @mintocha/codex-tools fetch "https://nodejs.org"` |
+| `finance <ticker>` | Real-time stock, crypto, ETF quotes | `npx @mintocha/codex-tools finance NVDA equity` |
+| `weather <location>` | Weather forecasts and current conditions | `npx @mintocha/codex-tools weather "Tokyo" --days 3` |
+| `sports <league>` | Schedules and league standings | `npx @mintocha/codex-tools sports nba standings` |
+| `time <utc_offset>` | Current time by UTC offset | `npx @mintocha/codex-tools time "+08:00"` |
+| `image-search <query>` | Image search with optional recency | `npx @mintocha/codex-tools image-search "aurora borealis"` |
+| `login` | Interactive OAuth device-code login | `npx @mintocha/codex-tools login` |
+| `server` *(or no args)* | Starts the MCP server on `stdio` | `npx -y @mintocha/codex-tools` |
+| `--help`, `-h` | Prints usage overview and examples | `npx @mintocha/codex-tools --help` |
 
+### Direct CLI Examples
+
+#### 1. Live Web Search
+```bash
+npx @mintocha/codex-tools search "OpenAI Codex" --max 3
+```
+Add `--json` for machine-readable JSON output:
+```bash
+npx @mintocha/codex-tools search "OpenAI Codex" --max 1 --json
+```
+
+#### 2. Clean Webpage Content Extraction
+```bash
+npx @mintocha/codex-tools fetch "https://example.com"
+```
+
+#### 3. Real-Time Finance Quotes
+```bash
+npx @mintocha/codex-tools finance AAPL
+npx @mintocha/codex-tools finance BTC crypto
+```
+
+#### 4. Weather Forecasts
+```bash
+npx @mintocha/codex-tools weather "San Francisco" --days 5
+```
+
+#### 5. Sports Standings & Schedules
+```bash
+npx @mintocha/codex-tools sports nba standings
+npx @mintocha/codex-tools sports epl schedule --team "Arsenal"
+```
+
+#### 6. World Time by Offset
+```bash
+npx @mintocha/codex-tools time "+08:00"
+```
 ### Global Installation
 
 If you prefer to run `codex-tools` directly without `npx`:
