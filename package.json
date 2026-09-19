@@ -1,6 +1,6 @@
 {
   "name": "@mintocha/codex-tools",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Model Context Protocol (MCP) server for live web search, page extraction, and alpha tools via reversed Codex backend",
   "bin": {
     "codex-tools": "dist/src/index.js"
