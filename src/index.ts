@@ -19,13 +19,12 @@ async function main() {
 
   if (arg === "--help" || arg === "-h") {
     console.log(`
-codex-search-mcp - Model Context Protocol (MCP) server for live web search and alpha tools via reversed Codex backend
+@mintocha/codex-tools - Model Context Protocol (MCP) server for live web search and alpha tools via reversed Codex backend
 
 Usage:
-  npx codex-search-mcp           Start the MCP server over stdio
-  npx codex-search-mcp login     Interactive device-code login (saves to ~/.codex/auth.json)
-  npx codex-search-mcp --help    Show this help message
-
+  npx @mintocha/codex-tools           Start the MCP server over stdio
+  npx @mintocha/codex-tools login     Interactive device-code login (saves to ~/.codex/auth.json)
+  npx @mintocha/codex-tools --help    Show this help message
 Authentication:
   - Auto-detected from ~/.codex/auth.json (supports auto-refresh)
   - Or via CODEX_API_KEY / OPENAI_API_KEY environment variables
@@ -51,7 +50,7 @@ Tools provided:
     await runServer();
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
-    process.stderr.write(`[codex-search-mcp] Fatal error: ${msg}\n`);
+    process.stderr.write(`[codex-tools] Fatal error: ${msg}\n`);
     process.exit(1);
   }
 }

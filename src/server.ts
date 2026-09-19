@@ -5,7 +5,7 @@ import { CodexClient } from "./codex-client.js";
 
 export function createMcpServer(): McpServer {
   const server = new McpServer({
-    name: "codex-search-mcp",
+    name: "codex-tools",
     version: "1.0.0",
   });
 
@@ -283,5 +283,5 @@ export async function runServer(): Promise<void> {
   const server = createMcpServer();
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  process.stderr.write("[codex-search-mcp] Server running on stdio\n");
+  process.stderr.write("[codex-tools] Server running on stdio\n");
 }

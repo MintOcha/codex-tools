@@ -82,7 +82,7 @@ export async function refreshAccessToken(refreshToken: string): Promise<CodexAut
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
-      "User-Agent": "codex-search-mcp/1.0.0",
+      "User-Agent": "codex-tools/1.0.0",
     },
     body: params.toString(),
   });
@@ -138,16 +138,16 @@ export async function getOrLoadAuthToken(): Promise<{ token: string; accountId?:
         let tokens = authData.tokens;
         if (isTokenExpired(tokens.access_token) && tokens.refresh_token) {
           try {
-            process.stderr.write("[codex-search-mcp] Access token expired, refreshing...\n");
+            process.stderr.write("[codex-tools] Access token expired, refreshing...\n");
             const refreshed = await refreshAccessToken(tokens.refresh_token);
             tokens = { ...tokens, ...refreshed };
             authData.tokens = tokens;
             authData.last_refresh = new Date().toISOString();
             fs.writeFileSync(authPath, JSON.stringify(authData, null, 2), { mode: 0o600 });
-            process.stderr.write("[codex-search-mcp] Token refreshed successfully.\n");
+            process.stderr.write("[codex-tools] Token refreshed successfully.\n");
           } catch (e: unknown) {
             const msg = e instanceof Error ? e.message : String(e);
-            process.stderr.write(`[codex-search-mcp] Auto-refresh failed: ${msg}\n`);
+            process.stderr.write(`[codex-tools] Auto-refresh failed: ${msg}\n`);
           }
         }
         return {
@@ -161,14 +161,14 @@ export async function getOrLoadAuthToken(): Promise<{ token: string; accountId?:
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
-      process.stderr.write(`[codex-search-mcp] Failed to read ${authPath}: ${msg}\n`);
+      process.stderr.write(`[codex-tools] Failed to read ${authPath}: ${msg}\n`);
     }
   }
   throw new Error(
     "No Codex authentication found.\n" +
       "Please either:\n" +
       "  1. Set CODEX_API_KEY or OPENAI_API_KEY in your environment, or\n" +
-      "  2. Run 'npx codex-search-mcp login' to authenticate with your ChatGPT/Codex account."
+      "  2. Run 'npx @mintocha/codex-tools login' to authenticate with your ChatGPT/Codex account."
   );
 }
 
@@ -179,7 +179,7 @@ export async function loginWithDeviceAuth(): Promise<void> {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "User-Agent": "codex-search-mcp/1.0.0",
+      "User-Agent": "codex-tools/1.0.0",
     },
     body: JSON.stringify({ client_id: CLIENT_ID }),
   });
@@ -209,7 +209,7 @@ export async function loginWithDeviceAuth(): Promise<void> {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "User-Agent": "codex-search-mcp/1.0.0",
+        "User-Agent": "codex-tools/1.0.0",
       },
       body: JSON.stringify({
         client_id: CLIENT_ID,

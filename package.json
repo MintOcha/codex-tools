@@ -1,9 +1,9 @@
 {
-  "name": "codex-search-mcp",
+  "name": "@mintocha/codex-tools",
   "version": "1.0.0",
   "description": "Model Context Protocol (MCP) server for live web search, page extraction, and alpha tools via reversed Codex backend",
   "bin": {
-    "codex-search-mcp": "./dist/src/index.js"
+    "codex-tools": "dist/src/index.js"
   },
   "main": "./dist/src/index.js",
   "type": "module",
@@ -31,6 +31,17 @@
   ],
   "author": "MintOcha",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MintOcha/codex-tools.git"
+  },
+  "bugs": {
+    "url": "https://github.com/MintOcha/codex-tools/issues"
+  },
+  "homepage": "https://github.com/MintOcha/codex-tools#readme",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.6.1",
     "zod": "^3.24.2"

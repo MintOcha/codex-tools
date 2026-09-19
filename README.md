@@ -1,51 +1,79 @@
-# codex-search-mcp
+# @mintocha/codex-tools
 
-A **Model Context Protocol (MCP)** server providing real-time live web search, readable page extraction, market data, weather forecasts, sports schedules, and alpha browser tools powered by the reversed Codex / ChatGPT backend.
+[![npm version](https://img.shields.io/npm/v/@mintocha/codex-tools.svg?style=flat-square&color=blue)](https://www.npmjs.com/package/@mintocha/codex-tools)
+[![npm license](https://img.shields.io/npm/l/@mintocha/codex-tools.svg?style=flat-square)](https://github.com/MintOcha/codex-tools/blob/main/LICENSE)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178c6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![MCP](https://img.shields.io/badge/MCP-Protocol%201.6-purple?style=flat-square)](https://modelcontextprotocol.io/)
 
-Designed to be instantly runnable with `npx` in **Claude Desktop**, **Cursor**, **Windsurf**, **Oh My Pi**, **Cline**, and any MCP client.
+A high-performance **Model Context Protocol (MCP)** server providing real-time live web search, readable page extraction, market data, weather forecasts, sports schedules, and alpha browser tools powered by the reversed Codex / ChatGPT backend.
+
+Designed to be instantly runnable with `npx` in **Claude Desktop**, **Cursor**, **Windsurf**, **Oh My Pi (OMP)**, **Zed**, **Cline**, and any standard MCP client.
+
+---
+
+## Table of Contents
+
+- [Features](#-features)
+- [Quick Start](#-quick-start)
+  - [Interactive Device Login](#interactive-login-device-code-flow)
+  - [Direct Execution](#direct-stdio-execution)
+- [MCP Client Configurations](#-mcp-client-configurations)
+  - [Claude Desktop](#claude-desktop)
+  - [Cursor](#cursor)
+  - [Windsurf](#windsurf)
+  - [Oh My Pi (OMP)](#oh-my-pi-omp)
+  - [Zed](#zed)
+  - [VS Code / Cline](#vs-code--cline)
+- [Authentication & Credential Discovery](#-authentication--credential-discovery)
+- [Available Tools & Capabilities](#-available-tools--capabilities)
+- [Architecture & Protocol](#-architecture--protocol)
+- [Development & Testing](#-development--testing)
+- [License](#-license)
 
 ---
 
 ## 🚀 Features
 
-- **Live Web Search (`web-search`)**: Real-time web search queries returning titles, snippets, source URLs, and citations.
-- **Native Page Fetch (`fetch`)**: Extracts clean, readable text/markdown from web pages without raw HTML noise.
-- **Deep Web Navigation (`open-page`, `click-link`, `find-in-page`)**: Inspect pages, follow numbered reference links, and search text patterns.
-- **Live Market & Financial Data (`finance`)**: Real-time stock, crypto, ETF, and index quotes with intraday changes and market caps.
-- **Weather Forecasts (`weather`)**: Accurate 7-day weather forecasts and current conditions for any global location.
-- **Sports Schedules & Standings (`sports`)**: Schedules and standings across leagues (NBA, EPL, NFL, MLB, NHL, etc.).
-- **Global World Time (`world-time`)**: Instant, accurate time lookup for any UTC offset.
-- **PDF Screenshots (`screenshot-pdf`)**: Extract high-resolution visual screenshots of PDF pages by page index.
-- **Image Search (`image-search`)**: Query image search engine with optional domain and recency filters.
-- **Zero-Configuration Authentication**: Automatically detects and refreshes credentials from `~/.codex/auth.json`, environment variables, or interactive OAuth login.
+- **Live Web Search (`web-search`)**: Live internet search engine delivering curated snippets, URLs, and citations directly to LLMs.
+- **Native Page Fetch (`fetch`)**: Extracts clean, readable text and markdown from web pages without raw HTML boilerplate.
+- **Deep Page Inspection (`open-page`, `click-link`, `find-in-page`)**: Read pages line-by-line, follow reference links, and run regex/pattern searches.
+- **Live Market & Financial Data (`finance`)**: Quotes for stocks, cryptocurrencies, ETFs, and indices with price changes and market stats.
+- **Weather Forecasts (`weather`)**: 7-day weather forecasts and current conditions worldwide.
+- **Sports Schedules & Standings (`sports`)**: Match schedules and league standings across NBA, EPL, NFL, MLB, NHL, and more.
+- **Global World Time (`world-time`)**: Instant time lookup by UTC offset.
+- **PDF Screenshots (`screenshot-pdf`)**: High-resolution rendered visual screenshots of individual PDF pages.
+- **Image Search (`image-search`)**: Image search engine with domain and recency filtering.
+- **Zero-Configuration Token Management**: Automatically discovers and refreshes OAuth tokens from `~/.codex/auth.json`, OMP configuration, or environment variables.
 
 ---
 
 ## 📦 Quick Start
 
-Run directly without installation:
+### Interactive Login (Device Code Flow)
+
+If you have a ChatGPT/Codex account and want seamless zero-config access:
 
 ```bash
-npx -y codex-search-mcp
+npx @mintocha/codex-tools login
 ```
 
-### Interactive Login (Optional)
+This initiates an OAuth device code flow, presents a verification URL (`https://auth.openai.com/codex/device`) and a one-time code, and securely stores the refreshed credentials in `~/.codex/auth.json` with restricted permissions (`0600`). Expired access tokens are refreshed automatically in the background on subsequent runs.
 
-If you have a ChatGPT/Codex subscription and want to authenticate automatically:
+### Direct stdio Execution
+
+Launch the MCP server directly over standard input/output:
 
 ```bash
-npx codex-search-mcp login
+npx -y @mintocha/codex-tools
 ```
-
-This starts the OAuth device code flow, shows a one-time verification URL and code, and securely stores the credentials in `~/.codex/auth.json` (auto-refreshed upon expiration).
 
 ---
 
-## 🛠 MCP Client Configuration
+## 🛠 MCP Client Configurations
 
 ### Claude Desktop
 
-Add the following to your `claude_desktop_config.json`:
+Add `@mintocha/codex-tools` to your `claude_desktop_config.json`:
 
 - **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
 - **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
@@ -54,9 +82,22 @@ Add the following to your `claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
-    "codex-search": {
+    "codex-tools": {
       "command": "npx",
-      "args": ["-y", "codex-search-mcp"],
+      "args": ["-y", "@mintocha/codex-tools"]
+    }
+  }
+}
+```
+
+*Note: If using API key authentication instead of `npx @mintocha/codex-tools login`, supply `env`:*
+
+```json
+{
+  "mcpServers": {
+    "codex-tools": {
+      "command": "npx",
+      "args": ["-y", "@mintocha/codex-tools"],
       "env": {
         "CODEX_API_KEY": "your_api_key_here"
       }
@@ -65,67 +106,153 @@ Add the following to your `claude_desktop_config.json`:
 }
 ```
 
-*(Note: If you have already authenticated with `npx codex-search-mcp login` or have `~/.codex/auth.json`, you can omit the `"env"` block!)*
-
 ### Cursor
 
-Add to your Cursor MCP settings (`Settings` -> `Features` -> `MCP`):
+Add to your Cursor MCP settings (`Settings` -> `Features` -> `MCP` -> `Add New MCP Server`):
 
-- **Name**: `codex-search`
+- **Name**: `codex-tools`
 - **Type**: `command`
-- **Command**: `npx -y codex-search-mcp`
+- **Command**: `npx -y @mintocha/codex-tools`
+
+### Windsurf
+
+Add to `~/.codeium/windsurf/mcp_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "codex-tools": {
+      "command": "npx",
+      "args": ["-y", "@mintocha/codex-tools"]
+    }
+  }
+}
+```
 
 ### Oh My Pi (OMP)
 
-Add to your `~/.omp/agent/mcp.toml`:
+Add to `~/.omp/agent/mcp.toml`:
 
 ```toml
-[mcpServers.codex-search]
+[mcpServers.codex-tools]
 command = "npx"
-args = ["-y", "codex-search-mcp"]
+args = ["-y", "@mintocha/codex-tools"]
+```
+
+### Zed
+
+Add to your `settings.json`:
+
+```json
+{
+  "context_servers": {
+    "codex-tools": {
+      "command": {
+        "path": "npx",
+        "args": ["-y", "@mintocha/codex-tools"]
+      }
+    }
+  }
+}
+```
+
+### VS Code / Cline
+
+Add to your `cline_mcp_settings.json`:
+
+```json
+{
+  "mcpServers": {
+    "codex-tools": {
+      "command": "npx",
+      "args": ["-y", "@mintocha/codex-tools"],
+      "disabled": false,
+      "autoApprove": []
+    }
+  }
+}
 ```
 
 ---
 
-## 🔑 Authentication Options
+## 🔑 Authentication & Credential Discovery
 
-`codex-search-mcp` looks for authentication in the following order:
+`@mintocha/codex-tools` resolves credentials using a prioritized waterfall:
 
-1. **Environment Variables**:
-   - `CODEX_API_KEY`: API key for Codex or an OpenAI-compatible / LiteLLM proxy.
-   - `OPENAI_API_KEY`: Standard OpenAI API key.
-   - `CODEX_BASE_URL` (optional): Custom endpoint URL (e.g. `https://litellm.v-rail.org/v1`).
-2. **Existing Codex Configuration (`~/.codex/auth.json`)**:
-   - Automatically detects access and refresh tokens created by the Codex CLI or `npx codex-search-mcp login`.
-   - Expired tokens are refreshed automatically in the background.
+| Priority | Source | Description |
+|---|---|---|
+| **1** | `CODEX_API_KEY` / `OPENAI_API_KEY` | Environment variable (Bearer token or OpenAI-compatible key) |
+| **2** | `~/.omp/agent/web.toml` | Reads `api_keys` and custom `base_url` if running in an Oh My Pi environment |
+| **3** | `~/.codex/auth.json` | Created by `npx @mintocha/codex-tools login` or OpenAI Codex CLI. Automatically auto-refreshes tokens before expiration |
+
+### Custom Endpoint (`CODEX_BASE_URL`)
+
+To route requests through a custom proxy, LiteLLM router, or gateway:
+
+```bash
+export CODEX_BASE_URL="https://your-custom-proxy.internal/v1"
+```
 
 ---
 
-## 🧰 Available Tools
+## 🧰 Available Tools & Capabilities
 
-| Tool | Description | Arguments |
+| Tool | Description | Parameters |
 |---|---|---|
-| `web-search` | Live internet search for queries, benchmark figures, and news | `query` (string, required), `max_results` (number, default: 10) |
-| `fetch` | Fetch clean readable content from a list of URLs | `urls` (string array, required) |
-| `open-page` | Open page and position viewport at specific line | `ref_id` (string, required), `lineno` (number, optional) |
-| `click-link` | Follow a numbered reference link from an opened page | `ref_id` (string, required), `link_id` (number, required) |
-| `find-in-page` | Search text or regex patterns in opened page | `ref_id` (string, required), `pattern` (string, required) |
-| `screenshot-pdf`| Capture PDF page screenshot | `ref_id` (string, required), `pageno` (number, required) |
-| `image-search` | Search image engine | `query` (string, required), `recency_days` (number), `domains` (string array) |
-| `finance` | Financial quotes for stocks, crypto, ETFs, and indices | `ticker` (string, required), `asset_type` (`equity` \| `fund` \| `crypto` \| `index`) |
-| `weather` | Weather forecast and current conditions | `location` (string, required), `start_date` (string), `duration_days` (number) |
-| `sports` | Sports schedules and league standings | `league` (string, required), `fn` (`schedule` \| `standings`), `team` (string) |
+| `web-search` | Live internet search for queries, figures, news, and citations | `query` (string, required)<br>`max_results` (number, 1–25, default: 10) |
+| `fetch` | Fetch clean readable markdown content for URLs | `urls` (string array, required) |
+| `open-page` | Open page and position viewport at line | `ref_id` (string, required)<br>`lineno` (number, optional) |
+| `click-link` | Follow a numbered reference link from an opened page | `ref_id` (string, required)<br>`link_id` (number, required) |
+| `find-in-page` | Search text or regex patterns in an opened page | `ref_id` (string, required)<br>`pattern` (string, required) |
+| `screenshot-pdf` | Render visual screenshot of a PDF page | `ref_id` (string, required)<br>`pageno` (number, required, 0-indexed) |
+| `image-search` | Query image search engine with optional domain/recency filters | `query` (string, required)<br>`recency_days` (number, optional)<br>`domains` (string array, optional) |
+| `finance` | Financial quotes for stocks, crypto, ETFs, and indices | `ticker` (string, required)<br>`asset_type` (`equity` \| `fund` \| `crypto` \| `index`) |
+| `weather` | Weather forecast and current conditions | `location` (string, required)<br>`start_date` (string, optional)<br>`duration_days` (number, optional) |
+| `sports` | Sports schedules and league standings | `league` (string, required)<br>`fn` (`schedule` \| `standings`)<br>`team` (string, optional) |
 | `world-time` | Accurate time lookup by UTC offset | `utc_offset` (string, e.g. `+08:00`, `-05:00`) |
 
 ---
 
-## 💻 Development
+## 🏗 Architecture & Protocol
+
+```
++-------------------------------------------------------+
+|                 MCP Host Client                       |
+|   (Claude Desktop / Cursor / OMP / Windsurf / Zed)    |
++-------------------------------------------------------+
+                           |
+                     stdio / JSON-RPC
+                           |
++-------------------------------------------------------+
+|               @mintocha/codex-tools                   |
+|  - McpServer (@modelcontextprotocol/sdk)              |
+|  - Token Manager & Refresh Loop (~/.codex/auth.json)  |
+|  - Resilient Codex Backend Client                     |
++-------------------------------------------------------+
+                           |
+                     HTTPS / TLS
+                           |
++-------------------------------------------------------+
+|             Codex / OpenAI Backend APIs               |
++-------------------------------------------------------+
+```
+
+---
+
+## 💻 Development & Testing
 
 ```bash
-git clone https://github.com/MintOcha/codex-search-mcp.git
-cd codex-search-mcp
+# Clone repository
+git clone https://github.com/MintOcha/codex-tools.git
+cd codex-tools
+
+# Install dependencies
 npm install
+
+# Compile TypeScript
 npm run build
+
+# Run automated tests
 npm test
 ```
 
