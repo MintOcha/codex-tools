@@ -85,9 +85,9 @@ export function createMcpServer(): McpServer {
         const payload: Record<string, unknown> = { ref_id: normalizeRefId(ref_id) };
         if (typeof lineno === "number") payload.lineno = lineno;
         const res = await client.executeCommand("open", [payload]);
-        return {
-          content: [{ type: "text", text: typeof res.output === "string" ? res.output : "" }],
-        };
+        const text = typeof res.output === "string" ? res.output : "";
+        client.recordViewRef(ref_id, text);
+        return { content: [{ type: "text", text }] };
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : String(err);
         return { isError: true, content: [{ type: "text", text: `Open page error: ${msg}` }] };
@@ -105,10 +105,12 @@ export function createMcpServer(): McpServer {
     },
     async ({ ref_id, link_id }) => {
       try {
-        const res = await client.executeCommand("click", [{ ref_id, id: link_id }]);
-        return {
-          content: [{ type: "text", text: typeof res.output === "string" ? res.output : "" }],
-        };
+        const resolvedRef = client.resolveViewRef(ref_id);
+        const res = await client.executeCommand("click", [{ ref_id: resolvedRef, id: link_id }]);
+        const text = typeof res.output === "string" ? res.output : "";
+        client.recordViewRef(ref_id, text);
+        client.recordViewRef(resolvedRef, text);
+        return { content: [{ type: "text", text }] };
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : String(err);
         return { isError: true, content: [{ type: "text", text: `Click link error: ${msg}` }] };
@@ -126,10 +128,12 @@ export function createMcpServer(): McpServer {
     },
     async ({ ref_id, pattern }) => {
       try {
-        const res = await client.executeCommand("find", [{ ref_id: normalizeRefId(ref_id), pattern }]);
-        return {
-          content: [{ type: "text", text: typeof res.output === "string" ? res.output : "" }],
-        };
+        const resolvedRef = client.resolveViewRef(ref_id);
+        const res = await client.executeCommand("find", [{ ref_id: resolvedRef, pattern }]);
+        const text = typeof res.output === "string" ? res.output : "";
+        client.recordViewRef(ref_id, text);
+        client.recordViewRef(resolvedRef, text);
+        return { content: [{ type: "text", text }] };
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : String(err);
         return { isError: true, content: [{ type: "text", text: `Find in page error: ${msg}` }] };
@@ -137,26 +141,6 @@ export function createMcpServer(): McpServer {
     }
   );
 
-  // 6. screenshot-pdf
-  server.tool(
-    "screenshot-pdf",
-    "Take a screenshot of page pageno (0-indexed) indicated by ref_id or URL (works on PDFs).",
-    {
-      ref_id: z.string().describe("PDF URL or reference ID"),
-      pageno: z.number().int().min(0).describe("0-indexed page number"),
-    },
-    async ({ ref_id, pageno }) => {
-      try {
-        const res = await client.executeCommand("screenshot", [{ ref_id: normalizeRefId(ref_id), pageno }]);
-        return {
-          content: [{ type: "text", text: typeof res.output === "string" ? res.output : "" }],
-        };
-      } catch (err: unknown) {
-        const msg = err instanceof Error ? err.message : String(err);
-        return { isError: true, content: [{ type: "text", text: `Screenshot error: ${msg}` }] };
-      }
-    }
-  );
 
   // 7. image-search
   server.tool(
@@ -173,8 +157,41 @@ export function createMcpServer(): McpServer {
         if (typeof recency_days === "number") payload.recency = recency_days;
         if (Array.isArray(domains)) payload.domains = domains;
         const res = await client.executeCommand("image_query", [payload]);
+        const rawOutput = typeof res.output === "string" ? res.output : "";
+        const images: Array<{ title: string; page_url: string; image_url: string; description: string }> = [];
+        if (rawOutput) {
+          const blocks = rawOutput.split(/-{20,}/);
+          for (const block of blocks) {
+            const trimmed = block.trim();
+            if (!trimmed) continue;
+            const lines = trimmed.split("\n");
+            const firstLine = lines[0] || "";
+            let title = firstLine;
+            let pageUrl = "";
+            const pageMatch = firstLine.match(/^(.*?)\s*\((https?:\/\/[^\s)]+)\)$/);
+            if (pageMatch) {
+              title = pageMatch[1].trim();
+              pageUrl = pageMatch[2].trim();
+            }
+            let imageUrl = "";
+            const imgMatch = trimmed.match(/Image URL:\s*(https?:\/\/[^\s#]+)/);
+            if (imgMatch) {
+              imageUrl = imgMatch[1];
+            }
+            const descLines = lines.slice(1).filter(
+              (l) => !l.startsWith("Image URL:") && !l.startsWith("cite") && l.trim().length > 0
+            );
+            images.push({
+              title,
+              page_url: pageUrl,
+              image_url: imageUrl,
+              description: descLines.join("\n"),
+            });
+          }
+        }
+        const outputData = images.length > 0 ? images : (res.results ?? []);
         return {
-          content: [{ type: "text", text: JSON.stringify(res.results ?? [], null, 2) }],
+          content: [{ type: "text", text: JSON.stringify(outputData, null, 2) }],
         };
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : String(err);

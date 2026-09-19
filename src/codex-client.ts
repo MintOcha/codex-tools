@@ -34,6 +34,21 @@ export class CodexClient {
       this.customBaseUrl = (baseUrl || process.env.CODEX_BASE_URL)!.replace(/\/+$/, "");
     }
   }
+  readonly sessionId: string = crypto.randomUUID();
+  private urlToViewRef: Map<string, string> = new Map();
+
+  recordViewRef(refId: string, output: string): void {
+    const match = output.match(/cite(turn\d+view\d+)/);
+    if (match) {
+      const viewRef = match[1];
+      this.urlToViewRef.set(refId, viewRef);
+      this.urlToViewRef.set(viewRef, viewRef);
+    }
+  }
+
+  resolveViewRef(refId: string): string {
+    return this.urlToViewRef.get(refId) || refId;
+  }
 
   async executeCommand(
     commandName: string,
@@ -52,7 +67,7 @@ export class CodexClient {
     }
 
     const body = {
-      id: crypto.randomUUID(),
+      id: this.sessionId,
       model: process.env.CODEX_MODEL || "",
       commands: {
         [commandName]: commandPayload,

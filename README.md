@@ -156,7 +156,6 @@ When connected as an MCP server, the following tools are exposed over JSON-RPC:
 | `open-page` | `ref_id` (string, required), `lineno` (integer, optional) | Page text positioned at the specified line |
 | `click-link` | `ref_id` (string, required), `link_id` (integer, required) | Target page text from following a numbered reference link |
 | `find-in-page` | `ref_id` (string, required), `pattern` (string, required) | Matched pattern occurrences and surrounding context |
-| `screenshot-pdf` | `ref_id` (string, required), `pageno` (integer, required, 0-indexed) | Rendered image output of the PDF page |
 | `image-search` | `query` (string, required), `recency_days` (integer), `domains` (string array) | JSON list of image search matches |
 | `finance` | `ticker` (string, required), `asset_type` (`equity` \| `fund` \| `crypto` \| `index`) | Current market price, change, volume, and company details |
 | `weather` | `location` (string, required), `start_date` (string), `duration_days` (integer) | Weather conditions and temperature forecast |
