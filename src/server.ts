@@ -1,7 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
-import { CodexClient } from "./codex-client.js";
+import { CodexClient, normalizeRefId } from "./codex-client.js";
 
 export function createMcpServer(): McpServer {
   const server = new McpServer({
@@ -45,7 +45,7 @@ export function createMcpServer(): McpServer {
     "fetch",
     "Fetch readable page content for given URLs using Codex native page extraction.",
     {
-      urls: z.array(z.string().url()).describe("List of URLs to fetch readable content from"),
+      urls: z.array(z.string()).describe("List of URLs or domains to fetch readable content from"),
     },
     async ({ urls }) => {
       try {
@@ -82,7 +82,7 @@ export function createMcpServer(): McpServer {
     },
     async ({ ref_id, lineno }) => {
       try {
-        const payload: Record<string, unknown> = { ref_id };
+        const payload: Record<string, unknown> = { ref_id: normalizeRefId(ref_id) };
         if (typeof lineno === "number") payload.lineno = lineno;
         const res = await client.executeCommand("open", [payload]);
         return {
@@ -126,7 +126,7 @@ export function createMcpServer(): McpServer {
     },
     async ({ ref_id, pattern }) => {
       try {
-        const res = await client.executeCommand("find", [{ ref_id, pattern }]);
+        const res = await client.executeCommand("find", [{ ref_id: normalizeRefId(ref_id), pattern }]);
         return {
           content: [{ type: "text", text: typeof res.output === "string" ? res.output : "" }],
         };
@@ -147,7 +147,7 @@ export function createMcpServer(): McpServer {
     },
     async ({ ref_id, pageno }) => {
       try {
-        const res = await client.executeCommand("screenshot", [{ ref_id, pageno }]);
+        const res = await client.executeCommand("screenshot", [{ ref_id: normalizeRefId(ref_id), pageno }]);
         return {
           content: [{ type: "text", text: typeof res.output === "string" ? res.output : "" }],
         };

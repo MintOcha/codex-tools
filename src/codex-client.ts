@@ -16,6 +16,16 @@ export interface CodexCommandResult {
   [key: string]: unknown;
 }
 
+export function normalizeRefId(refId: string): string {
+  const trimmed = refId.trim();
+  if (/^https?:\/\//i.test(trimmed)) {
+    return trimmed;
+  }
+  if (/^([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(:\d+)?(\/.*)?$/i.test(trimmed)) {
+    return `https://${trimmed}`;
+  }
+  return trimmed;
+}
 export class CodexClient {
   private customBaseUrl?: string;
 
@@ -83,7 +93,8 @@ export class CodexClient {
   }
 
   async fetchPage(url: string, lineno?: number): Promise<string> {
-    const payload: Record<string, unknown> = { ref_id: url };
+    const normalizedUrl = normalizeRefId(url);
+    const payload: Record<string, unknown> = { ref_id: normalizedUrl };
     if (typeof lineno === "number") {
       payload.lineno = lineno;
     }
