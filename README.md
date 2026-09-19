@@ -15,8 +15,10 @@ Designed to be instantly runnable with `npx` in **Claude Desktop**, **Cursor**, 
 
 - [Features](#-features)
 - [Quick Start](#-quick-start)
-  - [Interactive Device Login](#interactive-login-device-code-flow)
-  - [Direct Execution](#direct-stdio-execution)
+- [CLI Usage](#-cli-usage)
+  - [Available Commands](#available-commands)
+  - [Global Installation](#global-installation)
+  - [Testing via Stdio Pipe](#testing-over-stdio)
 - [MCP Client Configurations](#-mcp-client-configurations)
   - [Claude Desktop](#claude-desktop)
   - [Cursor](#cursor)
@@ -65,6 +67,63 @@ Launch the MCP server directly over standard input/output:
 
 ```bash
 npx -y @mintocha/codex-tools
+```
+
+---
+
+## 💻 CLI Usage
+
+`@mintocha/codex-tools` can be run via `npx` or installed globally as a command-line binary.
+
+### Available Commands
+
+| Command | Description |
+|---|---|
+| `npx @mintocha/codex-tools` | Starts the MCP server on `stdio` (default mode for MCP clients) |
+| `npx @mintocha/codex-tools login` | Runs interactive OAuth device-code login and caches tokens to `~/.codex/auth.json` |
+| `npx @mintocha/codex-tools --help` | Prints usage summary, auth options, and supported tool names |
+
+### Global Installation
+
+If you prefer to run `codex-tools` directly without `npx`:
+
+```bash
+# Install globally
+npm install -g @mintocha/codex-tools
+
+# Run directly
+codex-tools login
+codex-tools
+```
+
+### Device Code Authentication Walkthrough
+
+When running `login`, the CLI prompts:
+
+```text
+Initiating Codex device authorization...
+
+========================================================
+1. Open this URL in your browser: https://auth.openai.com/codex/device
+2. Enter one-time code:          ABCD-EFGH
+========================================================
+
+Waiting for approval in browser (press Ctrl+C to cancel)...
+Token refreshed and stored in ~/.codex/auth.json
+```
+
+### Testing over stdio
+
+To verify the server and list available tools from your shell, send an MCP JSON-RPC `initialize` frame directly:
+
+```bash
+echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"tester","version":"1.0.0"}}}' | npx -y @mintocha/codex-tools
+```
+
+Expected response:
+
+```json
+{"result":{"protocolVersion":"2024-11-05","capabilities":{"tools":{"listChanged":true}},"serverInfo":{"name":"codex-tools","version":"1.0.0"}},"jsonrpc":"2.0","id":1}
 ```
 
 ---
